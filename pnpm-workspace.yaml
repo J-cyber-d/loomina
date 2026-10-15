@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'services/*'
+
+allowBuilds:
+  '@cubejs-backend/cubestore': true
+  '@cubejs-backend/native': true
+  '@swc/core': true
+  es5-ext: true
+  esbuild: true
