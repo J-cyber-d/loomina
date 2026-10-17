@@ -1,6 +1,17 @@
+try {
+  require('dotenv').config();
+} catch {
+  // ignore
+}
+
 const PostgresDriver = require('@cubejs-backend/postgres-driver');
 
 module.exports = {
+  apiSecret: process.env.CUBEJS_API_SECRET || 'dev_cube_secret_token_12345',
+
+  // Multitenancy scheduled refresh contexts
+  scheduledRefreshContexts: async () => [],
+
   // Dynamically resolve customer analytical database per request
   driverFactory: async ({ securityContext }) => {
     if (securityContext && securityContext.dbUrl) {

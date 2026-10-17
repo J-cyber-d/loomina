@@ -7,7 +7,14 @@
     "start": "cubejs-server"
   },
   "dependencies": {
+    "@cubejs-backend/postgres-driver": "^0.36.0",
+    "@cubejs-backend/server": "0.36.0",
     "@cubejs-backend/server-core": "^0.36.0",
-    "@cubejs-backend/postgres-driver": "^0.36.0"
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@cubejs-backend/postgres-driver": "^0.36.0",
+    "@cubejs-backend/server": "0.36.0",
+    "@cubejs-backend/server-core": "^0.36.0"
   }
 }

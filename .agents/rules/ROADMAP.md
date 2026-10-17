@@ -74,18 +74,30 @@
 - [x] **Live PostgreSQL Persistence**:
   - [x] Seeded default demo organization (`Acme SaaS Corp`).
   - [x] "Save Dashboard" button calls `POST /api/v1/dashboards` to persist layouts in PostgreSQL.
-- [ ] **Drag-and-Drop & Resizing Grid (`react-grid-layout`)**:
-  - Drag cards to reposition and resize widgets on a 12-column visual grid.
-- [ ] **Better Auth Setup**: Multi-tenant workspace switching (`organization()`) and API key management (`apiKey()`).
+- [x] **Drag-and-Drop & Resizing Grid (`react-grid-layout`)**:
+  - [x] Reposition and resize widgets dynamically on an interactive 12-column visual grid.
+  - [x] Grab handles (⋮⋮), se-resize corner handles, and responsive compaction.
+  - [x] Editing mode toggle ("Editing Mode Unlocked" vs "Preview Mode Locked").
+  - [x] "Reset Layout" button and real-time layout persistence to PostgreSQL via `POST /api/v1/dashboards`.
+- [x] **Better Auth Setup**:
+  - [x] Multi-tenant workspace switching (`organization()`) and Superadmin impersonation (`admin()`).
+  - [x] Fastify auth routing at `/api/auth/*` forwarding to Better Auth handler.
+  - [x] Full developer API key management (`POST /api/v1/api-keys`, `GET`, `DELETE`) with SHA-256 hashing in PostgreSQL.
+  - [x] Studio `<OrgSwitcher />` component with active workspace indicator and instant creation modal.
 
 ---
 
 ### Sprint 3: The Embedded React SDK (`@loomina/react`)
 - [x] **Shadow DOM Style Encapsulation**: Guarantees host CSS cannot leak into Loomina embed.
 - [x] **Apache ECharts Integration**: Canvas renderer with curated 6-color dark-mode palette (`#6366f1`, `#06b6d4`, `#10b981`, `#f59e0b`, `#8b5cf6`, `#ec4899`).
+- [x] **Interactive Embed Playground**:
+  - [x] Copy-pasteable 3-line `<EmbeddedDashboard token={jwt} />` live sandbox with tenant switcher.
+  - [x] Live stateless JWT generation and verification with <0.2ms latency badge.
+  - [x] Multi-theme customizer (Obsidian, Midnight Cyan, Emerald Matrix, Clean Daylight) with color palette picker and corner radius controls.
+  - [x] "Simulate Hostile Host CSS" stress-test proving 100% Shadow DOM style immunity.
+  - [x] Real-time Action & Event Console logging custom drill-downs and CSV export events.
 - [ ] **Sub-10ms SWR Caching**: SWR memory cache for repeated dashboard renders.
 - [ ] **Headless Query Hooks (`useLoominaQuery`)**: Enable developers to embed single standalone metric badges or custom UI charts.
-- [ ] **Interactive Embed Playground**: Copy-pasteable 3-line `<EmbeddedDashboard token={jwt} />` live sandbox with tenant switcher.
 - [ ] **1-Click Export Suite**: Download dashboard data as CSV, formatted Excel (`.xlsx`), or PDF report.
 
 ---
