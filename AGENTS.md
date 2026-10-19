@@ -8,7 +8,7 @@
 
 ## 1. Core Architectural Overview
 
-Loomina consists of 4 decoupled core packages in a **pnpm + Turborepo** monorepo:
+Loomina consists of 5 decoupled core packages in a **pnpm + Turborepo** monorepo:
 
 1. **`apps/studio`**: Developer Admin Console (Single Page Application).
    - Tech: **Vite + React 19 + TypeScript + Tailwind CSS + Shadcn UI**.
@@ -20,9 +20,9 @@ Loomina consists of 4 decoupled core packages in a **pnpm + Turborepo** monorepo
 3. **`packages/shared`**: Shared TypeScript contracts.
    - Purpose: Universal types (`DashboardConfig`, `WidgetConfig`, `JWTPayload`, `ThemeConfig`).
 4. **`services/api`**: Backend API Gateway.
-   - Tech: **Fastify (or NestJS Fastify adapter) + TypeScript + Drizzle ORM + PostgreSQL**.
+   - Tech: **Fastify v5 + TypeScript + Drizzle ORM + PostgreSQL**.
    - Auth Engine: **Better Auth (`https://better-auth.com/`)**.
-   - Purpose: CRUD metadata, API key issuance, and Better Auth authentication.
+   - Purpose: CRUD metadata, query proxying to Cube.js, API key issuance, and Better Auth authentication.
 5. **`services/cube`**: High-Speed Analytical Query Engine.
    - Tech: **Cube.js Core (OSS Apache-2.0)**.
    - Purpose: Dynamically connects to customer ClickHouse/PostgreSQL/MySQL databases, generates SQL, deduplicates queries, and serves sub-10ms cached aggregations.
@@ -105,8 +105,11 @@ Loomina uses **Cube.js Core (Free Open Source Apache 2.0)** inside `services/cub
 
 ## 6. Key References
 
+- Current Development Status & Active Sprint: See [.agents/rules/CURRENT_STATUS.md](.agents/rules/CURRENT_STATUS.md)
+- Codebase Patterns & Architectural Conventions: See [.agents/rules/CONVENTIONS.md](.agents/rules/CONVENTIONS.md)
 - System Architecture & Data Flow: See [.agents/rules/ARCHITECTURE.md](.agents/rules/ARCHITECTURE.md)
 - UI Tokens, Colors & ECharts: See [.agents/rules/DESIGN_SYSTEM.md](.agents/rules/DESIGN_SYSTEM.md)
 - Development Roadmap & Sprint Tasks: See [.agents/rules/ROADMAP.md](.agents/rules/ROADMAP.md)
 - Competitive Intelligence: See [.agents/rules/COMPETITORS.md](.agents/rules/COMPETITORS.md)
 - Standout Killer Features: See [.agents/rules/KILLER_FEATURES.md](.agents/rules/KILLER_FEATURES.md)
+

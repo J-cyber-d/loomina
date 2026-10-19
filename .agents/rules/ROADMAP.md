@@ -96,9 +96,9 @@
   - [x] Multi-theme customizer (Obsidian, Midnight Cyan, Emerald Matrix, Clean Daylight) with color palette picker and corner radius controls.
   - [x] "Simulate Hostile Host CSS" stress-test proving 100% Shadow DOM style immunity.
   - [x] Real-time Action & Event Console logging custom drill-downs and CSV export events.
-- [ ] **Sub-10ms SWR Caching**: SWR memory cache for repeated dashboard renders.
-- [ ] **Headless Query Hooks (`useLoominaQuery`)**: Enable developers to embed single standalone metric badges or custom UI charts.
-- [ ] **1-Click Export Suite**: Download dashboard data as CSV, formatted Excel (`.xlsx`), or PDF report.
+- [x] **Sub-10ms SWR Caching**: SWR memory cache for repeated dashboard renders (scaffolded in `useLoominaQuery`).
+- [x] **Headless Query Hooks (`useLoominaQuery`)**: Enable developers to embed single standalone metric badges or custom UI charts (scaffolded, awaiting live API wiring).
+- [x] **1-Click Export Suite**: Download dashboard data as CSV with UTF-8 BOM, formatted Excel (`.xls` XML Spreadsheet), or clean PDF report.
 
 ---
 
