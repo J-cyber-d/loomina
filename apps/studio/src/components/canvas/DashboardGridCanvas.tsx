@@ -54,25 +54,63 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
       transition: all 0.15s ease !important;
       z-index: 2 !important;
     }
-    .react-resizable-handle {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      bottom: 0;
-      right: 0;
-      cursor: se-resize;
-      z-index: 10;
+
+    /* Modern Visible Resize Handles */
+    .react-grid-item > .react-resizable-handle {
+      position: absolute !important;
+      z-index: 60 !important;
+      opacity: 0.6 !important;
+      transition: opacity 0.15s ease, background-color 0.15s ease !important;
     }
-    .react-resizable-handle::after {
-      content: "";
-      position: absolute;
-      right: 6px;
-      bottom: 6px;
-      width: 6px;
-      height: 6px;
-      border-right: 2px solid #6366f1;
-      border-bottom: 2px solid #6366f1;
-      border-radius: 1px;
+
+    .react-grid-item:hover > .react-resizable-handle {
+      opacity: 1 !important;
+    }
+
+    /* Southeast Corner Resize Handle */
+    .react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+      width: 28px !important;
+      height: 28px !important;
+      bottom: 2px !important;
+      right: 2px !important;
+      cursor: se-resize !important;
+    }
+
+    .react-grid-item > .react-resizable-handle.react-resizable-handle-se::after {
+      content: "" !important;
+      position: absolute !important;
+      right: 5px !important;
+      bottom: 5px !important;
+      width: 10px !important;
+      height: 10px !important;
+      border-right: 3px solid #6366f1 !important;
+      border-bottom: 3px solid #6366f1 !important;
+      border-radius: 2px !important;
+      box-shadow: 0 0 6px rgba(99, 102, 241, 0.6) !important;
+    }
+
+    /* Right Border Resize Handle */
+    .react-grid-item > .react-resizable-handle.react-resizable-handle-e {
+      width: 8px !important;
+      height: 100% !important;
+      top: 0 !important;
+      right: 0 !important;
+      cursor: e-resize !important;
+    }
+    .react-grid-item:hover > .react-resizable-handle.react-resizable-handle-e:hover {
+      background: rgba(99, 102, 241, 0.3) !important;
+    }
+
+    /* Bottom Border Resize Handle */
+    .react-grid-item > .react-resizable-handle.react-resizable-handle-s {
+      height: 8px !important;
+      width: 100% !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      cursor: s-resize !important;
+    }
+    .react-grid-item:hover > .react-resizable-handle.react-resizable-handle-s:hover {
+      background: rgba(99, 102, 241, 0.3) !important;
     }
   `;
 
@@ -87,7 +125,7 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
             12-Column Drag & Drop Visual Grid
           </Badge>
           <span className="text-xs text-zinc-500 hidden md:inline">
-            {isEditable ? 'Drag cards by the handle (⋮⋮) or grab bottom-right corner to resize.' : 'Canvas locked in preview mode.'}
+            {isEditable ? 'Drag cards by the handle (⋮⋮) or grab the bottom/right borders and glowing corner (◿) to resize.' : 'Canvas locked in preview mode.'}
           </span>
         </div>
 
@@ -140,6 +178,7 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
             }}
             resizeConfig={{
               enabled: isEditable,
+              handles: ['se', 'e', 's'],
             }}
             onLayoutChange={(currentLayout) => {
               onLayoutChange(
@@ -158,10 +197,10 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
           >
             {widgets.map((widget) => {
               return (
-                <div key={widget.id} className="h-full">
-                  <Card className="h-full flex flex-col justify-between overflow-hidden shadow-lg border-[#27272a] bg-[#18181b] hover:border-zinc-700 transition-colors">
+                <div key={widget.id} className="h-full relative group">
+                  <Card className="h-full flex flex-col justify-between overflow-hidden shadow-lg border-[#27272a] bg-[#18181b] group-hover:border-zinc-700 transition-colors">
                     {/* Top Action Bar with Drag Handle & Delete */}
-                    <div className="px-3.5 pt-3 pb-1 flex items-center justify-between border-b border-[#27272a]/60 bg-[#151518]">
+                    <div className="px-3.5 pt-3 pb-1 flex items-center justify-between border-b border-[#27272a]/60 bg-[#151518] shrink-0">
                       <div className="flex items-center gap-2 truncate">
                         {isEditable && (
                           <button
@@ -193,9 +232,9 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
                     </div>
 
                     {/* Widget Content Body */}
-                    <div className="flex-1 p-3.5 overflow-hidden flex flex-col justify-center">
+                    <div className="flex-1 p-3.5 overflow-hidden flex flex-col justify-center min-h-0">
                       {widget.type === 'kpi' && (
-                        <div className="space-y-1">
+                        <div className="space-y-1 my-auto">
                           <div className="text-2xl font-bold tracking-tight text-white">
                             {widget.value || '$48,250'}
                           </div>
@@ -210,7 +249,7 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
                       )}
 
                       {widget.type === 'area' && (
-                        <div className="h-full w-full min-h-[160px]">
+                        <div className="h-full w-full flex-1 flex flex-col min-h-[140px]">
                           <AreaChartWidget
                             title=""
                             metric={widget.metric}
@@ -220,7 +259,7 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
                       )}
 
                       {widget.type === 'bar' && (
-                        <div className="h-full w-full min-h-[160px]">
+                        <div className="h-full w-full flex-1 flex flex-col min-h-[140px]">
                           <BarChartWidget
                             title=""
                             metric={widget.metric}
@@ -230,7 +269,7 @@ export const DashboardGridCanvas: React.FC<DashboardGridCanvasProps> = ({
                       )}
 
                       {widget.type === 'table' && (
-                        <div className="h-full w-full overflow-auto">
+                        <div className="h-full w-full flex-1 overflow-auto">
                           <TanStackTableWidget />
                         </div>
                       )}

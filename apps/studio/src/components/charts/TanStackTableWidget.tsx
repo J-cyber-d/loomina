@@ -95,12 +95,12 @@ export function TanStackTableWidget() {
   });
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-3">
+    <div className="w-full h-full flex flex-col min-h-0">
+      <div className="flex items-center justify-between mb-2 shrink-0">
         <h4 className="text-xs font-semibold text-zinc-200">Top SaaS Accounts (TanStack Table v8)</h4>
         <span className="text-[10px] text-zinc-400 font-mono">5 accounts active</span>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-[#27272a] bg-[#121214]">
+      <div className="overflow-auto flex-1 rounded-lg border border-[#27272a] bg-[#121214]">
         <table className="w-full text-left text-xs text-zinc-300">
           <thead className="bg-[#18181b] border-b border-[#27272a] text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
             {table.getHeaderGroups().map((headerGroup) => (

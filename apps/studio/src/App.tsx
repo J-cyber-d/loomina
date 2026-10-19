@@ -22,7 +22,7 @@ import {
   Eye,
   KeyRound,
   Shield,
-  User,
+  ShieldCheck,
 } from 'lucide-react';
 import { EmbeddedDashboard } from '@loomina/react';
 import { Button } from './components/ui/button';
@@ -38,7 +38,13 @@ import {
 } from './components/ui/dialog';
 import { OrgSwitcher, type OrgItem } from './components/auth/OrgSwitcher';
 import { EmbedPlayground } from './components/playground/EmbedPlayground';
-import { DashboardGridCanvas, type GridWidgetLayout } from './components/canvas/DashboardGridCanvas';
+import {
+  DashboardGridCanvas,
+  type GridWidgetLayout,
+} from './components/canvas/DashboardGridCanvas';
+import { AuthGate, type UserSessionData } from './components/auth/AuthGate';
+import { UserMenu } from './components/auth/UserMenu';
+import { SessionsAuditDashboard } from './components/auth/SessionsAuditDashboard';
 
 interface DataSource {
   id: string;
@@ -81,9 +87,51 @@ interface ApiKeyItem {
 
 export default function App() {
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-  const [activeTab, setActiveTab] = useState<'canvas' | 'playground' | 'datastores' | 'keys'>(
+  const [activeTab, setActiveTab] = useState<'canvas' | 'playground' | 'datastores' | 'keys' | 'sessions'>(
     'canvas'
   );
+
+  // Better Auth User Session State with LocalStorage Persistence
+  const [userSession, setUserSession] = useState<UserSessionData | null>(() => {
+    try {
+      const saved = localStorage.getItem('loomina_studio_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const handleAuthenticated = (session: UserSessionData) => {
+    setUserSession(session);
+    try {
+      localStorage.setItem('loomina_studio_session', JSON.stringify(session));
+    } catch {
+      // ignore
+    }
+    if (session.organizationId && session.organizationName) {
+      const newOrg: OrgItem = {
+        id: session.organizationId,
+        name: session.organizationName,
+        slug: session.organizationName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        role: session.role || 'owner',
+      };
+      setOrganizations((prev) => {
+        if (prev.some((o) => o.id === newOrg.id)) return prev;
+        return [newOrg, ...prev];
+      });
+      setCurrentOrg(newOrg);
+    }
+  };
+
+  const handleSignOut = () => {
+    setUserSession(null);
+    try {
+      localStorage.removeItem('loomina_studio_session');
+    } catch {
+      // ignore
+    }
+  };
+
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [showAddWidgetModal, setShowAddWidgetModal] = useState(false);
   const [showEmbedModal, setShowEmbedModal] = useState(false);
@@ -115,6 +163,27 @@ export default function App() {
   const [revealedSecretKey, setRevealedSecretKey] = useState('');
   const [isCreatingKey, setIsCreatingKey] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
+  const [previewToken, setPreviewToken] = useState<string>('');
+
+  // Fetch real guest JWT embed token for canvas embed preview
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/v1/embed/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        organizationId: currentOrg?.id || 'org_acme_corp',
+        tenantId: 'tenant_acme_corp',
+        expiresInHours: 24,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.token) {
+          setPreviewToken(data.token);
+        }
+      })
+      .catch(() => {});
+  }, [API_BASE_URL, currentOrg?.id]);
 
   // Fetch API keys on org change
   useEffect(() => {
@@ -417,7 +486,9 @@ export default function App() {
     ]);
 
     setShowAddWidgetModal(false);
-    setSaveSuccessMessage('Widget added to 12-column visual grid! Click "Save Dashboard" to persist.');
+    setSaveSuccessMessage(
+      'Widget added to 12-column visual grid! Click "Save Dashboard" to persist.'
+    );
     setTimeout(() => setSaveSuccessMessage(null), 4000);
   };
 
@@ -493,6 +564,11 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Enforce Better Auth Gate
+  if (!userSession) {
+    return <AuthGate onAuthenticated={handleAuthenticated} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#09090b] text-[#fafafa] flex flex-col font-sans selection:bg-indigo-500/30">
       {/* Top Header */}
@@ -548,6 +624,15 @@ export default function App() {
             <Key className="w-3.5 h-3.5" />
             API Keys ({apiKeysList.length})
           </Button>
+          <Button
+            variant={activeTab === 'sessions' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('sessions')}
+            className={activeTab === 'sessions' ? 'bg-[#27272a] text-white' : ''}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            Sessions &amp; Logins
+          </Button>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -559,13 +644,13 @@ export default function App() {
             onCreateOrg={handleCreateOrg}
           />
 
-          <Badge
-            variant="outline"
-            className="hidden lg:flex items-center gap-1 text-[11px] text-zinc-400 border-[#27272a] bg-[#18181b] py-1 px-2.5"
-          >
-            <User className="w-3 h-3 text-indigo-400" />
-            <span>Alex Morgan</span>
-          </Badge>
+          {userSession && (
+            <UserMenu
+              session={userSession}
+              onSignOut={handleSignOut}
+              onOpenSessionsTab={() => setActiveTab('sessions')}
+            />
+          )}
 
           <a
             href={`${API_BASE_URL}/documentation`}
@@ -656,7 +741,8 @@ export default function App() {
               </div>
 
               <EmbeddedDashboard
-                token="demo_jwt_token"
+                token={previewToken}
+                apiHost={API_BASE_URL}
                 theme={{
                   mode: 'dark',
                   fontFamily: 'Inter, sans-serif',
@@ -850,6 +936,11 @@ export default function App() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* VIEW 5: BETTER AUTH SESSIONS & AUDIT TAB */}
+        {activeTab === 'sessions' && (
+          <SessionsAuditDashboard apiBaseUrl={API_BASE_URL} />
         )}
       </main>
 

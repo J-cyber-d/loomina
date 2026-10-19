@@ -80,6 +80,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
         })
         .returning();
 
+      request.log.info({ organizationId, keyPrefix }, 'Developer API key generated');
       return reply.status(201).send({
         id: inserted.id,
         name: inserted.name,
@@ -99,6 +100,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
       };
       memoryApiKeys.unshift(newKey);
 
+      request.log.info({ organizationId, keyPrefix, isFallback: true }, 'Developer API key generated (fallback storage)');
       return reply.status(201).send({
         id: newKey.id,
         name: newKey.name,
@@ -122,6 +124,7 @@ export const apiKeyRoutes: FastifyPluginAsync = async (fastify) => {
       }
     }
 
+    request.log.info({ keyId: id }, 'Developer API key revoked');
     return reply.status(200).send({ success: true, message: 'API key revoked successfully' });
   });
 };

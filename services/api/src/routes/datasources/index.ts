@@ -180,6 +180,11 @@ export const dataSourceRoutes: FastifyPluginAsync = async (fastify) => {
       });
     }
 
+    request.log.info(
+      { engineType, maskedUri: maskConnectionUri(connectionUri) },
+      'Testing customer database connection'
+    );
+
     if (engineType === 'postgres') {
       const startTime = Date.now();
       let client: postgres.Sql | null = null;
@@ -206,6 +211,11 @@ export const dataSourceRoutes: FastifyPluginAsync = async (fastify) => {
 
         const sampleTables = tablesResult.map((t) => t.table_name as string);
 
+        request.log.info(
+          { engineType, latencyMs: latency, tablesDiscovered: sampleTables.length },
+          'Database connection test succeeded'
+        );
+
         return reply.status(200).send({
           success: true,
           message: `Connected successfully to PostgreSQL in ${latency}ms`,
@@ -214,6 +224,15 @@ export const dataSourceRoutes: FastifyPluginAsync = async (fastify) => {
         });
       } catch (err) {
         const diagnostics = parseDatabaseError(err, 'postgres');
+        request.log.warn(
+          {
+            engineType,
+            category: diagnostics.category,
+            title: diagnostics.title,
+            err: (err as Error).message,
+          },
+          'Database connection test failed'
+        );
         return reply.status(400).send({
           success: false,
           title: diagnostics.title,

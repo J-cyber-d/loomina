@@ -16,13 +16,18 @@ export function encryptCredentials(plainText: string): string {
 }
 
 export function decryptCredentials(encryptedPayload: string): string {
-  const [ivHex, authTagHex, encryptedData] = encryptedPayload.split(':');
-  if (!ivHex || !authTagHex || !encryptedData) {
-    throw new Error('Malformed encrypted payload');
+  try {
+    const parts = encryptedPayload.split(':');
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) {
+      throw new Error('Malformed encrypted payload. Expected iv:authTag:cipherText format.');
+    }
+    const [ivHex, authTagHex, encryptedData] = parts;
+    const decipher = crypto.createDecipheriv(ALGORITHM, SECRET_KEY, Buffer.from(ivHex, 'hex'));
+    decipher.setAuthTag(Buffer.from(authTagHex, 'hex'));
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (err) {
+    throw new Error(`Failed to decrypt credentials: ${(err as Error).message}`);
   }
-  const decipher = crypto.createDecipheriv(ALGORITHM, SECRET_KEY, Buffer.from(ivHex, 'hex'));
-  decipher.setAuthTag(Buffer.from(authTagHex, 'hex'));
-  let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
 }

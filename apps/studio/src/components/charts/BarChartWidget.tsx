@@ -68,23 +68,34 @@ export function BarChartWidget({ title, metric, color = '#06b6d4' }: BarChartPro
 
     chartInstance.current.setOption(option);
 
+    // Dynamic container resize observer for visual grid dragging & resizing
+    const resizeObserver = new ResizeObserver(() => {
+      chartInstance.current?.resize();
+    });
+    if (chartRef.current) {
+      resizeObserver.observe(chartRef.current);
+    }
+
     const handleResize = () => chartInstance.current?.resize();
     window.addEventListener('resize', handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
     };
   }, [metric, color]);
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="text-xs font-semibold text-zinc-200">{title}</h4>
-        <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
-          {metric}
-        </span>
-      </div>
-      <div ref={chartRef} className="w-full h-48" />
+    <div className="w-full h-full flex flex-col min-h-0">
+      {title && (
+        <div className="flex items-center justify-between mb-2 shrink-0">
+          <h4 className="text-xs font-semibold text-zinc-200">{title}</h4>
+          <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20">
+            {metric}
+          </span>
+        </div>
+      )}
+      <div ref={chartRef} className="w-full flex-1 min-h-[140px]" />
     </div>
   );
 }
